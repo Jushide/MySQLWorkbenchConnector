@@ -1,5 +1,6 @@
 import os
 import mysql.connector
+from privateVariables import *
 from variables import *
 
 connection = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=HOSTNAME)
@@ -13,68 +14,95 @@ def showDatabases():
     print("-" * 9, "SCHEMAS", "-" * 9)
     for databases in cursor:
         print(*databases)
-    # print("\nCzy chcesz wybrać jakąś bazę?")
-    # selection = input()
-    # selectionSwitchCase(selection)
+    getQuery()
 
 
-def selectDatabase():
-    print("\nPodaj jaką bazę chcesz wybrać")
-    database = input()
-    cursor.execute(f"USE {database};")
+def selectDatabase(use):
+    cursor.execute(use)
     cursor.execute("SHOW TABLES;")
     print("-" * 9, "TABLES", "-" * 9)
     for tables in cursor:
         print(*tables)
+    getQuery()
 
 
-def createDatabase():
-    print("Jak chcesz nazwać bazę?")
-    databaseName = input()
+def createDatabase(create):
+    test = create.split()
     try:
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {databaseName};")
-        print(f"Pomyślnie utworzono bazę {databaseName}")
+        cursor.execute(create)
+        print(f"Pomyślnie utworzono bazę {test[::0]}")
+    except:
+        print("Nie można utworzyć takiej bazy")
+        main()
+    getQuery()
+
+
+def dropDatabase(drop):
+    test = drop.split()
+    try:
+        cursor.execute(drop)
+        print(f"Pomyślnie usunięto bazę {test[-1]}")
         main()
     except:
         print("Nie ma w zbiorze takiej bazy")
         main()
 
 
-def dropDatabase():
-    print("Jaką bazę chcesz usunąć?")
-    databaseName = input()
-    try:
-        cursor.execute("DROP DATABASE IF EXISTS {databaseName};")
-        print(f"Pomyślnie usunięto bazę {databaseName}")
-        main()
-    except:
-        print("Nie ma w zbiorze takiej bazy")
-        main()
+def selectQuery(select):
+    splitedQuery = select.split()
+    test = splitedQuery.index("FROM")
+
+    print("\n")
+
+    cursor.execute(f"DESCRIBE {splitedQuery[test + 1]}")
+    for columnName in cursor:
+        print("|", columnName[0], end=" |   ")
+
+    print("\n")
+
+    cursor.execute(select)
+    for row in cursor:
+        for i in range(len(row)):
+            print("|", row[i], end=" |   ")
+        print("\n")
+
+    getQuery()
 
 
 # FUNCTIONS #
 
-def querySwitchCase(action):
-    if action == 1:
-        showDatabases()
-    elif action == 2:
-        selectDatabase()
-    elif action == 3:
-        createDatabase()
-    elif action == 4:
-        dropDatabase()
-    else:
-        print("Narazie niedotepne")
+def querySwitchCase(query):
+    splitedQuery = query.split()
 
-
-def selectionSwitchCase(selection):
-    if selection.lower() in possibleSelections or selection == 1:
-        querySwitchCase(2)
-    else:
-        main()
+    if splitedQuery[0] in possibleQueries:
+        if splitedQuery[0] == possibleQueries[0]:
+            createDatabase(query)
+        elif splitedQuery[0] == possibleQueries[1]:
+            selectDatabase(query)
+        elif splitedQuery[0] == possibleQueries[2]:
+            print('tu bedzie alter')
+        elif splitedQuery[0] == possibleQueries[3]:
+            dropDatabase(query)
+        elif splitedQuery[0] == possibleQueries[4]:
+            selectQuery(query)
+        elif splitedQuery[0] == possibleQueries[5]:
+            showDatabases()
+        elif splitedQuery[0] == possibleQueries[6]:
+            print("tu bedzie describe")
+        else:
+            print("Nie ma takiej kwerendy")
+            getQuery()
 
 
 # MAIN #
+
+def getQuery():
+    print("\nSQL Query:")
+    query = input()
+    if ";" not in query[-1]:
+        query += ";"
+    querySwitchCase(query.upper())
+
 
 def main():
     os.system('cls')
@@ -84,11 +112,7 @@ def main():
     print("=" * 52, "\n\n")
 
     showDatabases()
-    selectDatabase()
-
-    print("\nSQL Query:")
-    query = input()
-    querySwitchCase(query)
+    getQuery()
 
 
 main()
