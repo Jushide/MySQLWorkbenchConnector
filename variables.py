@@ -1,1 +1,1 @@
-possibleQueries = ("CREATE", "USE", "ALTER", "DROP", "SELECT", "INSERT", "SHOW", "DESCRIBE")
+possibleQueries = ("CREATE", "USE", "ALTER", "DROP", "SELECT", "INSERT", "SHOW", "DESCRIBE", "IMPORT")

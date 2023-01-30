@@ -1,4 +1,5 @@
 import os
+from datetime import date, datetime
 import mysql.connector
 from privateVariables import *
 from variables import *
@@ -31,10 +32,10 @@ def createDatabase(create):
     try:
         cursor.execute(create)
         print(f"Pomyślnie utworzono bazę {test[::0]}")
+        getQuery()
     except:
         print("Nie można utworzyć takiej bazy")
-        main()
-    getQuery()
+        getQuery()
 
 
 def dropDatabase(drop):
@@ -69,26 +70,35 @@ def selectQuery(select):
     getQuery()
 
 
+def importDatabase(fileName):
+    with open(f"{fileName.lower().replace(';', '')}.sql", "r") as importer:
+        test=importer.readlines()
+        test2=""
+        createDatabase(test2.join(test))
+
+
 # FUNCTIONS #
 
 def querySwitchCase(query):
-    splitedQuery = query.split()
+    # splitedQuery = query.split()
 
-    if splitedQuery[0] in possibleQueries:
-        if splitedQuery[0] == possibleQueries[0]:
+    if query.split()[0] in possibleQueries:
+        if query.split()[0] == possibleQueries[0]:
             createDatabase(query)
-        elif splitedQuery[0] == possibleQueries[1]:
+        elif query.split()[0] == possibleQueries[1]:
             selectDatabase(query)
-        elif splitedQuery[0] == possibleQueries[2]:
+        elif query.split()[0] == possibleQueries[2]:
             print('tu bedzie alter')
-        elif splitedQuery[0] == possibleQueries[3]:
+        elif query.split()[0] == possibleQueries[3]:
             dropDatabase(query)
-        elif splitedQuery[0] == possibleQueries[4]:
+        elif query.split()[0] == possibleQueries[4]:
             selectQuery(query)
-        elif splitedQuery[0] == possibleQueries[5]:
+        elif query.split()[0] == possibleQueries[6]:
             showDatabases()
-        elif splitedQuery[0] == possibleQueries[6]:
+        elif query.split()[0] == possibleQueries[7]:
             print("tu bedzie describe")
+        elif query.split()[0] == possibleQueries[8]:
+            importDatabase(query.split()[1])
         else:
             print("Nie ma takiej kwerendy")
             getQuery()
@@ -101,6 +111,11 @@ def getQuery():
     query = input()
     if ";" not in query[-1]:
         query += ";"
+
+    with open(f"queries{date.today()}.txt", "a") as writer:
+        # with open("queries.txt", "a") as writer, open("queries.txt", "r") as reader:
+        writer.write(str(datetime.now()) + "\ n")
+        writer.write(query + "\n\n")
     querySwitchCase(query.upper())
 
 
